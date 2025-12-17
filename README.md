@@ -2,7 +2,7 @@
 
 ### **Team Name:** Backprop Sust  
 ### **Competition:** শব্দতরী: Where Dialects Flow into Bangla
-### ** Position:** 4th
+### **Position:** 4th
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-Framework-red)](https://pytorch.org/)
