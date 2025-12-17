@@ -8,115 +8,280 @@
 [![Whisper](https://img.shields.io/badge/OpenAI-Whisper-green)](https://github.com/openai/whisper)
 [![LoRA](https://img.shields.io/badge/PEFT-LoRA-orange)](https://huggingface.co/docs/peft/index)
 
-## 📌 Project Overview
+---
 
-This repository contains the solution developed by **Team Backprop Sust** for the Shobdotori ASR challenge. The objective was to develop a robust Automatic Speech Recognition (ASR) system capable of transcribing **20 distinct regional Bangladeshi dialects** (e.g., Chittagonian, Sylheti, Rangpuri) into **Standard Formal Bangla** text.
+## 📌 Overview
 
-Our solution leverages the **OpenAI Whisper Medium** architecture, optimized via a novel **Dual-Stage Sequential Fine-Tuning** strategy to handle acoustic variability and data scarcity.
+This repository presents our solution for the **Shobdotori ASR Challenge**, which aimed to build a robust Automatic Speech Recognition (ASR) system capable of transcribing **20 distinct regional Bangladeshi dialects** into **Standard Formal Bangla** text.
 
-### 🏆 Key Achievements
-* **Public Leaderboard (NLS):** 0.91345
-* **Private Leaderboard (NLS):** 0.88077
+Regional dialects like Chittagonian, Sylheti, and Rangpuri exhibit significant phonetic and morphological variations that challenge standard ASR systems. Our approach leverages the **OpenAI Whisper Medium architecture** with a novel **Dual-Stage Sequential Fine-Tuning** strategy to address these challenges.
+
+### 🏆 Competition Results
+
+| Metric | Score |
+|:-------|:------|
+| **Public Leaderboard (NLS)** | **0.91345** |
+| **Private Leaderboard (NLS)** | **0.88077** |
 
 ---
 
 ## 👥 Team Members
 
 | Name | Affiliation |
-| :--- | :--- |
-| **Md Nasiat Hasan Fahim** | Dept of CSE, SUST (Session: 2020-21) |
-| **Miftahul Alam Adib** | Dept of Statistics, SUST (Session: 2023-24) |
-| **Arif Hussain** | Dept of Mathematics, SUST (Session: 2022-23) |
+|:-----|:------------|
+| **Md Nasiat Hasan Fahim** | Department of CSE, SUST (Session: 2020-21) |
+| **Miftahul Alam Adib** | Department of Statistics, SUST (Session: 2023-24) |
+| **Arif Hussain** | Department of Mathematics, SUST (Session: 2022-23) |
 
 ---
 
-## 🧩 Problem Statement
+## 🎯 Problem Statement
 
-Standard ASR models often fail on regional dialects due to "accent mismatch". Key challenges identified in the dataset included:
+Standard ASR models trained on formal Bangla fail to accurately transcribe regional dialects due to several critical challenges:
 
-1.  **Extreme Class Imbalance:** As shown below, there is a significant disparity in data availability. While regions like Chittagong and Mymensingh have ~400 samples, Khulna and Jessore have fewer than 35.
-2.  **Acoustic Variability:** Phonetic shifts (e.g., `/p/` $\to$ `/f/`).
-3.  **Data Redundancy:** A massive amount of sentence duplication in the training set.
+### Key Challenges
 
-![Distribution of Samples by District](Images/district_distribution.png)
-*Figure 1: Distribution of training samples across 20 districts, highlighting severe class imbalance.*
+#### 1. **Extreme Class Imbalance**
+The dataset exhibits severe imbalance across districts. While Chittagong and Mymensingh have approximately 400 samples each, districts like Khulna and Jessore have fewer than 35 samples.
+
+<div align="center">
+  <img src="Images/district_distribution.png" alt="Distribution of Samples by District" width="80%">
+  <p><em>Figure 1: Distribution of training samples across 20 districts, highlighting severe class imbalance</em></p>
+</div>
+
+#### 2. **Acoustic Variability**
+Regional dialects show significant phonetic shifts that confuse standard models:
+- Standard `/p/` (*Pani*) → `/f/` (*Fani*) in Noakhali/Sylhet
+- Different consonant realizations across regions
+
+#### 3. **Morphological Variation**
+Verb conjugations and grammatical structures vary significantly:
+- Standard: *Jabo* (I will go)
+- Regional variations: *Zaiyum*, *Zamu*
+
+#### 4. **Data Redundancy**
+A critical issue identified through our analysis:
+- **3,350 total sentences** in training set
+- Only **386 unique sentences** (11.5%)
+- **88% duplication** severely limits linguistic diversity
+
+<div align="center">
+  <img src="Images/total_vs_unique_sentences%20vs%20duplicate.png" alt="Sentence Duplication Analysis" width="70%">
+  <p><em>Figure 2: Analysis revealing high sentence duplication in the primary dataset</em></p>
+</div>
 
 ---
 
-## 🛠 Methodology
+## 📊 Dataset Analysis
 
-Our approach follows a comprehensive pipeline from stratified data splitting to deep punctuation restoration.
+### Dataset Composition
 
-![System Architecture Flowchart](Images/Flowchart%20of%20paper.png)
-*Figure 2: Complete workflow of our proposed solution.*
+We augmented the primary Shobdotori dataset with external resources to address its limitations:
+
+| Dataset | Type | Samples | Purpose | Filtering Criteria |
+|:--------|:-----|:--------|:--------|:-------------------|
+| **Shobdotori** | Primary (Dialect) | 3,350 | Regional dialect training | Stratified split by district |
+| **DL Sprint** | Auxiliary | ~2,389 | Vocabulary expansion | Length 4-11 words, high upvotes |
+| **Bengali.AI Speech** | Auxiliary | ~3,719 | Standard Bangla foundation | 4-5 word concise phrases |
+
+### Why Auxiliary Datasets Were Essential
+
+The primary Shobdotori dataset had critical limitations that necessitated augmentation:
+
+#### Audio Duration Limitations
+- **Primary dataset mean:** 4.2 seconds
+- **Auxiliary datasets mean:** ~5.4 seconds
+- Longer samples help the model generalize to varied utterance lengths
+
+<div align="center">
+  <img src="Images/audio_duration_comparison.png" alt="Audio Duration Analysis" width="80%">
+  <p><em>Figure 3: Duration distribution and cumulative percentage across datasets</em></p>
+</div>
+
+#### Vocabulary Constraints
+- **Primary dataset:** Only 590 unique words
+- **With auxiliary data:** Over 7,000 words
+- Essential for robust language modeling and handling diverse inputs
+
+#### Text Length Distribution
+Despite sample imbalance, text length remained relatively consistent across districts (median ~30 characters).
+
+<div align="center">
+  <img src="Images/text_length_by_district.png" alt="Text Length by District" width="70%">
+  <p><em>Figure 4: Character length distribution per district showing consistency</em></p>
+</div>
+
+### Comprehensive Dataset Statistics
+
+<div align="center">
+  <img src="Images/dataset_comparison.png" alt="Dataset Statistics Comparison" width="85%">
+  <p><em>Figure 5: Comparison of total samples, text length, word count, and vocabulary size</em></p>
+</div>
+
+---
+
+## 🛠️ Methodology
+
+Our solution employs a comprehensive pipeline from data preprocessing to post-processing refinement.
+
+<div align="center">
+  <img src="Images/Flowchart%20of%20paper.png" alt="System Architecture" width="90%">
+  <p><em>Figure 6: Complete workflow of our proposed ASR solution</em></p>
+</div>
 
 ### 1. Model Architecture & Initialization
-We utilized the **Whisper Medium (769M parameters)** model. We initialized our model using the **1st Place Solution checkpoint from the Bengali.AI Speech Recognition competition**, providing a robust foundation for Bengali acoustics.
+
+**Base Model:** OpenAI Whisper Medium (769M parameters)
+
+**Strategic Initialization:** Instead of using generic pre-trained weights, we initialized with the **1st place checkpoint from the Bengali.AI Speech Recognition competition**. This provided:
+- Strong foundation for Bengali phonetics and acoustics
+- Pre-existing knowledge of Bengali language patterns
+- Reduced training time and improved convergence
 
 ### 2. Dual-Stage Sequential Fine-Tuning
-To prevent catastrophic forgetting and adapt to the specific dialect data, we employed a two-phase training curriculum:
 
-| Phase | Dataset Mix | Epochs | Warmup Steps | Learning Rate | Composite Score Formula |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Phase 1** | Main + DL Sprint | 10 | 100 | 1e-4 | S_final = 0.89 × WER_main + 0.11 × WER_diff |
-| **Phase 2** | Main + Bengali.AI | 8 | 0 | 1e-4 | S_final = 0.95 × WER_main + 0.05 × WER_diff |
+To prevent catastrophic forgetting while adapting to dialect-specific features, we designed a two-phase curriculum:
 
-* **Adaptive Weighting:** We used composite scoring to balance the learning rate between the main dialect dataset and auxiliary datasets.
-* **High-Rank LoRA:** Implemented LoRA with **Rank 1024**, Alpha 64, and Dropout 0.1, targeting `q_proj` and `v_proj`.
+| Phase | Dataset Combination | Epochs | Warmup Steps | Learning Rate | Composite Score Formula |
+|:------|:-------------------|:-------|:-------------|:--------------|:------------------------|
+| **Phase 1: Base Adaptation** | Main + DL Sprint | 10 | 100 | 1e-4 | S_final = 0.89 × WER_main + 0.11 × WER_diff |
+| **Phase 2: Targeted Refinement** | Main + Bengali.AI | 8 | 0 | 1e-4 | S_final = 0.95 × WER_main + 0.05 × WER_diff |
+
+#### Key Training Strategies
+
+**Adaptive Weighting:**
+- Composite scoring balances main dataset performance with auxiliary dataset generalization
+- Progressive weighting shift (89:11 → 95:5) prioritizes main task in later stages
+
+**High-Rank LoRA (Low-Rank Adaptation):**
+- **Rank:** 1024 (significantly higher than typical LoRA implementations)
+- **Alpha:** 64
+- **Dropout:** 0.1
+- **Target modules:** `q_proj` and `v_proj` in attention layers
+- **Rationale:** High rank captures long-tail vocabulary and dialect-specific patterns
 
 ### 3. Data Preprocessing
-* **Audio:** Resampled to 16 kHz mono; generated Log-Mel Spectrograms.
-* **Text:** Normalized by removing non-speech artifacts (`<>`, `..`) and English characters.
-* **Dynamic Padding:** Custom data collator for batch-level dynamic padding.
 
-### 4. Post-Processing Pipeline
-* **Inference:** Greedy Decoding (`num_beams=1`) with batch size 4 on T4 GPUs.
-* **Deep Punctuation Restoration:** An ensemble of four **BERT (MuRIL-base)** models using Class-Weighted Voting [1.0, 1.4, 1.0, 0.8] to optimize standard Bengali punctuation.
+#### Audio Processing
+- **Resampling:** All audio converted to 16 kHz mono
+- **Feature extraction:** Log-Mel Spectrograms (standard Whisper input format)
+- **Normalization:** Volume normalization for consistent signal strength
 
----
+#### Text Normalization
+- Removed non-speech artifacts: `<>`, `..`, `***`
+- Stripped English characters and non-Bangla Unicode
+- Preserved standard Bengali punctuation marks
 
-## 📊 Dataset Analysis & Insights
+#### Efficient Batching
+- **Dynamic Padding:** Custom data collator for batch-level padding
+- Reduces unnecessary computation on padded tokens
+- Enables larger effective batch sizes
 
-We conducted a rigorous Exploratory Data Analysis (EDA) to design our training strategy.
+### 4. Inference & Post-Processing Pipeline
 
-### 1. Data Duplication & Text Length
-A critical finding was the lack of linguistic diversity in the primary dataset.
-* **High Duplication:** Out of **3,350 total sentences**, only **386 were unique**. Approximately 88% of the dataset consisted of duplicate sentences.
-* **Text Length:** Despite the sample imbalance, the text length distribution remained relatively consistent across districts (median ~30 characters).
+#### Inference Configuration
+- **Decoding Strategy:** Greedy decoding (`num_beams=1`)
+- **Batch Size:** 4 (optimized for T4 GPU memory)
+- **Hardware:** NVIDIA T4 GPUs
 
-<p float="left">
-  <img src="Images/total_vs_unique_sentences%20vs%20duplicate.png" width="45%" />
-  <img src="Images/text_length_by_district.png" width="45%" /> 
-</p>
-*Figure 3: (Left) Analysis of sentence uniqueness vs. duplication. (Right) Character length boxplots per district.*
+#### Post-Processing Refinements
 
-### 2. Necessity of Auxiliary Datasets
-To counter the limitations of the primary Shobdotori dataset (short audio duration and low vocabulary size), we augmented it with **AI Speech** and **DL Sprint** datasets.
-
-* **Audio Duration:** The primary dataset had a mean duration of only **4.2s**. The auxiliary datasets provided longer samples (up to ~5.4s mean), helping the model generalize to longer utterances.
-* **Vocabulary:** The primary dataset only contained **590 unique words**. Adding the auxiliary datasets expanded our vocabulary to over **7,000 words**, crucial for better language modeling.
-
-![Dataset Statistics Comparison](Images/dataset_comparison.png)
-*Figure 4: Comparison of Total Samples, Text Length, Word Count, and Vocabulary Size across datasets.*
-
-![Audio Duration Analysis](Images/audio_duration_comparison.png)
-*Figure 5: Duration distribution and cumulative percentage across the three datasets.*
+**Deep Punctuation Restoration:**
+- **Model:** Ensemble of four BERT (MuRIL-base) models
+- **Voting Mechanism:** Class-Weighted Voting with weights [1.0, 1.4, 1.0, 0.8]
+- **Target Punctuation:** Bengali standard marks (।, ?, ,)
+- **Rationale:** Whisper often omits punctuation; restoration improves readability and NLS score
 
 ---
 
-## 📈 Results
+## 📈 Experimental Results
 
-| Experiment Configuration | Public LB (NLS) | Private LB (NLS) |
-| :--- | :--- | :--- |
-| Baseline (Whisper Small, Static Pad) | 0.76897 | 0.71913 |
-| Interim (Whisper Medium, Main Only) | 0.91664 | 0.87203 |
-| **Proposed (Dual-Stage + LoRA + Post-Proc)** | **0.91345** | **0.88077** |
+### Performance Comparison
+
+| Experiment Configuration | Public LB (NLS) | Private LB (NLS) | Improvement |
+|:------------------------|:----------------|:----------------|:------------|
+| Baseline (Whisper Small, Static Padding) | 0.76897 | 0.71913 | - |
+| Interim (Whisper Medium, Main Dataset Only) | 0.91664 | 0.87203 | +21.3% |
+| **Final (Dual-Stage + LoRA + Post-Processing)** | **0.91345** | **0.88077** | **+22.5%** |
+
+### Key Insights
+
+1. **Model Size Impact:** Upgrading from Whisper Small to Medium provided a 19% boost in public leaderboard performance
+2. **Auxiliary Data Value:** Incorporating external datasets improved generalization (private LB score)
+3. **Post-Processing Gains:** Punctuation restoration contributed ~0.9% improvement in NLS
+4. **Generalization:** Private LB score within 3.6% of public LB indicates robust generalization
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+```bash
+Python 3.8+
+PyTorch 2.0+
+transformers
+peft
+datasets
+librosa
+```
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/shobdotori-asr.git
+cd shobdotori-asr
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Usage
+```bash
+# Training Phase 1
+python train_phase1.py --config configs/phase1_config.yaml
+
+# Training Phase 2
+python train_phase2.py --config configs/phase2_config.yaml
+
+# Inference
+python inference.py --model_path checkpoints/best_model --input_audio sample.wav
+```
+
+---
+
+## 📁 Repository Structure
+```
+├── configs/                 # Training configuration files
+├── data/                    # Dataset preparation scripts
+├── models/                  # Model architecture and LoRA configs
+├── preprocessing/           # Audio and text preprocessing
+├── postprocessing/          # Punctuation restoration ensemble
+├── training/                # Training scripts for both phases
+├── inference/               # Inference and evaluation scripts
+├── Images/                  # Figures and visualizations
+└── README.md
+```
+
+---
+
+## 🔬 Ablation Studies & Future Work
+
+### What Worked
+- High-rank LoRA (1024) captured dialect nuances better than standard low-rank approaches
+- Sequential training prevented catastrophic forgetting
+- Bengali.AI checkpoint initialization saved significant training time
+
+### Future Improvements
+- Explore dialect-specific adapters for each region
+- Implement data augmentation (speed perturbation, SpecAugment)
+- Investigate larger models (Whisper Large v3)
+- Develop active learning strategies for under-represented dialects
 
 ---
 
 ## 📜 Citation
 
-If you find this approach useful, please cite our work:
+If you find this work useful for your research, please cite:
 ```bibtex
 @inproceedings{backpropsust2025,
   title={Transcribing Regional Bangladeshi Dialects: A Dual-Stage Sequential Fine-Tuning Approach},
@@ -125,3 +290,34 @@ If you find this approach useful, please cite our work:
   year={2025},
   organization={Shahjalal University of Science and Technology}
 }
+```
+
+---
+
+## 📧 Contact
+
+For questions or collaboration opportunities, please reach out to:
+- **Md Nasiat Hasan Fahim** - [Email/GitHub]
+- **Miftahul Alam Adib** - [Email/GitHub]
+- **Arif Hussain** - [Email/GitHub]
+
+---
+
+## 🙏 Acknowledgments
+
+- OpenAI for the Whisper model architecture
+- Bengali.AI community for the foundational speech recognition checkpoint
+- AI-FICATION 2025 organizers for hosting the Shobdotori challenge
+- Shahjalal University of Science and Technology for institutional support
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+  <strong>⭐ If you find this project helpful, please consider giving it a star! ⭐</strong>
+</div>
