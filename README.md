@@ -1,13 +1,8 @@
 # Transcribing Regional Bangladeshi Dialects: A Dual-Stage Sequential Fine-Tuning Approach
 
-### **Team Name:** Backprop Sust  
-### **Competition:** শব্দতরী: Where Dialects Flow into Bangla
-### **Position:** 4th
+## 🎯 About This Project
+This repository contains our **4th place solution** for **শব্দতরী: Where Dialects Flow into Bangla**, a competition focused on automatic speech recognition for regional Bangladeshi dialects. Competing as **Team Backprop Sust**.
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-Framework-red)](https://pytorch.org/)
-[![Whisper](https://img.shields.io/badge/OpenAI-Whisper-green)](https://github.com/openai/whisper)
-[![LoRA](https://img.shields.io/badge/PEFT-LoRA-orange)](https://huggingface.co/docs/peft/index)
 
 ---
 
