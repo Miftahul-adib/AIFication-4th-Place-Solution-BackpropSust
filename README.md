@@ -98,7 +98,8 @@ If you find this approach useful, please cite our work:
   author={Fahim, Md Nasiat Hasan and Adib, Miftahul Alam and Hussain, Arif},
   booktitle={AI-FICATION 2025: Shobdotori Challenge},
   year={2025},
-  organization={Shahjalal University of Science and Technology}
+  organization={Chittagong University of Engineering & Technology (CUET)},
+  note={Team Backprop Sust, Shahjalal University of Science and Technology}
 }
 ```
 
