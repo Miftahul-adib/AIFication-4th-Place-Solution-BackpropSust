@@ -1,7 +1,8 @@
 # Transcribing Regional Bangladeshi Dialects: A Dual-Stage Sequential Fine-Tuning Approach
 
 ## 🎯 About This Project
-This repository contains our **4th place solution** for **শব্দতরী: Where Dialects Flow into Bangla**, a competition focused on automatic speech recognition for regional Bangladeshi dialects. Competing as **Team Backprop Sust**.
+This repository contains our **4th place solution** for **শব্দতরী: Where Dialects Flow into Bangla**, a competition focused on automatic speech recognition for regional Bangladeshi dialects. Competing as **Team Backprop Sust**. The competiton was hosted by: **Department of ETE, Chittagong University of Engineering 
+  and Technology (CUET)** in November 2025
 
 
 ---
